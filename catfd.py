@@ -109,23 +109,24 @@ def detect(input_image, output_path, use_json, annotate_faces,
             cropped.save(chip_path)
 
         if annotate_landmarks:
-            draw_landmark_annotation(img, shape, landmark_color, w / 250)
+            draw_landmark_annotation(img, shape, landmark_color, int(w * 0.001))
 
         if annotate_faces:
-            draw_face_annotation(img, face, face_color, w / 175)
+            draw_face_annotation(img, face, face_color, int(w * 0.005))
 
         if use_json:
             json.append(get_face_json(face, shape))
         else:
             print_face_info(i, face, shape)
 
-    if annotate_faces or annotate_landmarks:
-        filename = get_output_file(output_path,
-                                   input_image,
-                                   '_annotated',
-                                   'jpg')
+    if d.result.face_count > 0:
+        if annotate_faces or annotate_landmarks:
+            filename = get_output_file(output_path,
+                                       input_image,
+                                       '_annotated',
+                                       'jpg')
 
-        cv2.imwrite(filename, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+            cv2.imwrite(filename, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
     if use_json:
         print json

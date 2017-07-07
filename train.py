@@ -1,5 +1,6 @@
 import argparse
 import multiprocessing
+import os
 from lib.Trainer import Trainer
 from lib.TrainingDataUtil import TrainingDataUtil
 
@@ -46,6 +47,12 @@ def main():
                         default=multiprocessing.cpu_count(),
                         metavar='<int>')
 
+    parser.add_argument('-i', '--imglab',
+                        help='''
+                      
+                        ''',
+                        action='store_true')
+
     args = vars(parser.parse_args())
 
     if args['source_url']:
@@ -63,6 +70,21 @@ def main():
 
     if args['train_predictor']:
         train_predictor(args['cpu_cores'])
+
+    if args['imglab']:
+        parts = (
+            'left_eye',
+            'right_eye',
+            'nose',
+            'left_on_left_ear',
+            'right_on_left_ear',
+            'left_on_right_ear',
+            'right_on_right_ear',
+            'chin'
+        )
+        os.system(
+            'imglab training_data/training.xml --parts "' + ' '.join(
+                parts) + '"')
 
 
 def train_detector(cpu_cores):
