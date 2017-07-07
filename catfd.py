@@ -1,0 +1,206 @@
+import argparse
+import glob
+import os
+
+import cv2
+
+from lib.CatFaceLandmark import *
+from lib.Detector import Detector
+from PIL import Image
+from skimage import io
+
+
+def main():
+    formatter = lambda prog: argparse.HelpFormatter(prog,
+                                                    max_help_position=36)
+    desc = 'test'
+    parser = argparse.ArgumentParser(description=desc,
+                                     formatter_class=formatter)
+
+    parser.add_argument('-i', '--input-image',
+                        help='input image',
+                        metavar='<file>')
+
+    parser.add_argument('-f', '--input-folder',
+                        help='input folder',
+                        metavar='<path>')
+
+    parser.add_argument('-o', '--output_path',
+                        help='output location',
+                        default='.',
+                        metavar='<path>')
+
+    parser.add_argument('-j', '--json',
+                        help='',
+                        action='store_true')
+
+    parser.add_argument('-c', '--save-chip',
+                        help='',
+                        action='store_true')
+
+    parser.add_argument('-a', '--annotate-faces',
+                        help='',
+                        action='store_true')
+
+    parser.add_argument('-l', '--annotate-landmarks',
+                        help='',
+                        action='store_true')
+
+    parser.add_argument('-fc', '--face-color',
+                        help='',
+                        type=int,
+                        default=[0, 255, 0],
+                        nargs=3)
+
+    parser.add_argument('-lc', '--landmark-color',
+                        help='',
+                        type=int,
+                        default=[0, 255, 255],
+                        nargs=3)
+
+    args = vars(parser.parse_args())
+
+    if not args['input_image'] and not args['input_folder']:
+        parser.error("must specify either -i or -f")
+
+    if args['input_image']:
+        detect(args['input_image'], args['output_path'], args['json'],
+               args['annotate_faces'], args['annotate_landmarks'],
+               args['face_color'], args['landmark_color'], args['save_chip'])
+
+    if args['input_folder']:
+        for f in glob.glob(os.path.join(args['input_folder'], '*.jp*g')):
+            detect(f, args['output_path'], args['json'],
+                   args['annotate_faces'], args['annotate_landmarks'],
+                   args['face_color'], args['landmark_color'],
+                   args['save_chip'])
+
+
+def detect(input_image, output_path, use_json, annotate_faces,
+           annotate_landmarks, face_color, landmark_color, save_chip):
+    d = Detector(input_image)
+    d.detect()
+
+    if use_json:
+        json = []
+    else:
+        print 'Number of cat faces detected: {}'.format(d.result.face_count)
+
+    if annotate_faces or annotate_landmarks:
+        img = io.imread(input_image)
+
+    for i, face in enumerate(d.result.faces):
+        shape = d.result.shapes[i]
+
+        if save_chip:
+            cropped = Image.open(input_image)
+            cropped = cropped.crop((face.left(),
+                                    face.top(),
+                                    face.right(),
+                                    face.bottom()))
+
+            chip_path = get_output_file(output_path,
+                                        input_image,
+                                        '_face_{}'.format(i),
+                                        'jpg')
+            cropped.save(chip_path)
+
+        if annotate_landmarks:
+            draw_landmark_annotation(img, shape, landmark_color, 4)
+
+        if annotate_faces:
+            draw_face_annotation(img, face, face_color, 10)
+
+        if use_json:
+            json.append(get_face_json(face, shape))
+        else:
+            print_face_info(i, face, shape)
+
+    if annotate_faces or annotate_landmarks:
+        filename = get_output_file(output_path,
+                                   input_image,
+                                   '_annotated',
+                                   'jpg')
+
+        cv2.imwrite(filename, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+
+    if use_json:
+        print json
+
+
+def get_output_file(output_path, input_image, extra, ext):
+    if not os.path.isdir(output_path):
+        os.makedirs(output_path)
+
+    basename = os.path.splitext(os.path.basename(input_image))[0]
+    return os.path.join(output_path, basename + str(extra) + '.' + ext)
+
+
+def print_face_info(i, face, shape):
+    print 'Face #{}: ({}, {}), ({}, {})'.format(
+        i,
+        face.top(),
+        face.left(),
+        face.right(),
+        face.bottom()
+    )
+    print 'Chin: ({}, {})'.format(shape.part(0).x, shape.part(0).y)
+
+
+def get_face_json(face, shape):
+    return {
+        "face": {
+            'left': face.left(),
+            'top': face.top(),
+            'right': face.right(),
+            'bottom': face.bottom(),
+            'height': face.bottom() - face.top(),
+            'width': face.right() - face.left(),
+            'landmarks': {
+                'chin': [shape.part(0).x, shape.part(0).y],
+                'left_eye': [shape.part(1).x, shape.part(1).y],
+                # TODO
+            }
+        }
+    }
+
+
+def draw_face_annotation(img, face, color, width):
+    cv2.rectangle(img,
+                  (face.left(), face.top()),
+                  (face.right(), face.bottom()),
+                  color,
+                  width)
+
+
+def draw_landmark_annotation(img, shape, color, width):
+    lines = [
+        [CatFaceLandmark.CHIN, CatFaceLandmark.NOSE],
+        [CatFaceLandmark.NOSE, CatFaceLandmark.LEFT_EYE],
+        [CatFaceLandmark.NOSE, CatFaceLandmark.RIGHT_EYE],
+        [CatFaceLandmark.LEFT_EYE, CatFaceLandmark.LEFT_OF_LEFT_EAR],
+        [CatFaceLandmark.LEFT_EYE, CatFaceLandmark.RIGHT_OF_LEFT_EAR],
+        [CatFaceLandmark.RIGHT_OF_LEFT_EAR, CatFaceLandmark.LEFT_OF_LEFT_EAR],
+        [CatFaceLandmark.RIGHT_EYE, CatFaceLandmark.RIGHT_OF_RIGHT_EAR],
+        [CatFaceLandmark.RIGHT_EYE, CatFaceLandmark.LEFT_OF_RIGHT_EAR],
+        [CatFaceLandmark.RIGHT_OF_RIGHT_EAR, CatFaceLandmark.LEFT_OF_RIGHT_EAR],
+        [CatFaceLandmark.RIGHT_OF_LEFT_EAR, CatFaceLandmark.LEFT_OF_RIGHT_EAR],
+        [CatFaceLandmark.RIGHT_EYE, CatFaceLandmark.LEFT_EYE],
+    ]
+
+    for i in lines:
+        draw_line(img, shape.part(i[0]), shape.part(i[1]), color, width)
+
+
+def draw_line(img, shape1, shape2, color, width):
+    cv2.line(
+        img,
+        (shape1.x, shape1.y),
+        (shape2.x, shape2.y),
+        color,
+        width,
+        cv2.CV_AA
+    )
+
+
+main()

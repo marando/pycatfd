@@ -15,7 +15,7 @@ class TrainingDataUtil:
     def archive_training_data():
         if not TrainingDataUtil.__confirm_if_archive():
             return
-        
+
         try:
             tar = tarfile.open(TrainingDataUtil.training_data_archive, 'w:gz')
             tar.add('training_data')
@@ -68,7 +68,8 @@ class TrainingDataUtil:
 
     @staticmethod
     def __confirm_if_archive():
-        message = '{0} already exists, overwrite?'
-        message.format(TrainingDataUtil.training_data_archive)
+        message = '{0} already exists, overwrite?'.format(
+            TrainingDataUtil.training_data_archive
+        )
 
         return TrainingDataUtil.__confirm(message)
