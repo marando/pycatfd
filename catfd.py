@@ -84,13 +84,16 @@ def detect(input_image, output_path, use_json, annotate_faces,
     if use_json:
         json = []
     else:
+        print '\nImage: {}'.format(input_image)
         print 'Number of cat faces detected: {}'.format(d.result.face_count)
 
     if annotate_faces or annotate_landmarks:
         img = io.imread(input_image)
+        w = img.shape[1]
 
     for i, face in enumerate(d.result.faces):
-        shape = d.result.shapes[i]
+        # shape = d.result.shapes[i]
+        shape = d.predictor(img, face)
 
         if save_chip:
             cropped = Image.open(input_image)
@@ -106,10 +109,10 @@ def detect(input_image, output_path, use_json, annotate_faces,
             cropped.save(chip_path)
 
         if annotate_landmarks:
-            draw_landmark_annotation(img, shape, landmark_color, 4)
+            draw_landmark_annotation(img, shape, landmark_color, w / 250)
 
         if annotate_faces:
-            draw_face_annotation(img, face, face_color, 10)
+            draw_face_annotation(img, face, face_color, w / 175)
 
         if use_json:
             json.append(get_face_json(face, shape))
@@ -144,7 +147,7 @@ def print_face_info(i, face, shape):
         face.right(),
         face.bottom()
     )
-    print 'Chin: ({}, {})'.format(shape.part(0).x, shape.part(0).y)
+    print '   Chin: ({}, {})'.format(shape.part(0).x, shape.part(0).y)
 
 
 def get_face_json(face, shape):
@@ -187,6 +190,18 @@ def draw_landmark_annotation(img, shape, color, width):
         [CatFaceLandmark.RIGHT_OF_LEFT_EAR, CatFaceLandmark.LEFT_OF_RIGHT_EAR],
         [CatFaceLandmark.RIGHT_EYE, CatFaceLandmark.LEFT_EYE],
     ]
+
+    # draw_line(img, shape.part(0), shape.part(4), color, width)
+    # draw_line(img, shape.part(4), shape.part(1), color, width)
+    # draw_line(img, shape.part(4), shape.part(5), color, width)
+    # draw_line(img, shape.part(1), shape.part(5), color, width)
+    # draw_line(img, shape.part(2), shape.part(6), color, width)
+    # draw_line(img, shape.part(3), shape.part(7), color, width)
+    # draw_line(img, shape.part(1), shape.part(2), color, width)
+    # draw_line(img, shape.part(1), shape.part(6), color, width)
+    # draw_line(img, shape.part(5), shape.part(3), color, width)
+    # draw_line(img, shape.part(5), shape.part(7), color, width)
+    # draw_line(img, shape.part(3), shape.part(6), color, width)
 
     for i in lines:
         draw_line(img, shape.part(i[0]), shape.part(i[1]), color, width)
