@@ -1,5 +1,5 @@
 # pycatfd
-_Python based cat facial detection and landmark recognition_
+_Cat facial detection and landmark recognition in Python_
 
 ## Requirements
 * [dlib](https://github.com/davisking/dlib)
