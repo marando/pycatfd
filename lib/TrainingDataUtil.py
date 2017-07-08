@@ -10,6 +10,7 @@ class TrainingDataUtil:
 
     training_data_dir = 'training_data'
     training_data_archive = 'training_data.tar.gz'
+    training_data_xml = 'training.xml'
 
     @staticmethod
     def archive_training_data():

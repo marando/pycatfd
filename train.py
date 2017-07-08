@@ -29,6 +29,13 @@ def main():
                         ''',
                         action='store_true')
 
+    parser.add_argument('-c', '--cpu-cores',
+                        help='''
+                        number of CPU cores to train with 
+                        ''',
+                        default=multiprocessing.cpu_count(),
+                        metavar='<int>')
+
     parser.add_argument('-u', '--source-url',
                         help='download training data from url',
                         metavar='<url>')
@@ -40,16 +47,9 @@ def main():
                         ''',
                         action='store_true')
 
-    parser.add_argument('-c', '--cpu-cores',
-                        help='''
-                        number of CPU cores to train with 
-                        ''',
-                        default=multiprocessing.cpu_count(),
-                        metavar='<int>')
-
     parser.add_argument('-i', '--imglab',
                         help='''
-                      
+                        Open imglab session for current training data
                         ''',
                         action='store_true')
 
@@ -82,9 +82,12 @@ def main():
             'right_on_right_ear',
             'chin'
         )
-        os.system(
-            'imglab training_data/training.xml --parts "' + ' '.join(
-                parts) + '"')
+        cmd = 'imglab {}/{} --parts "{}"'.format(
+            TrainingDataUtil.training_data_dir,
+            TrainingDataUtil.training_data_xml,
+            ' '.join(parts)
+        )
+        os.system(cmd)
 
 
 def train_detector(cpu_cores):

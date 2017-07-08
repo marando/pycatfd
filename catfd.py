@@ -46,16 +46,16 @@ def main():
                         help='',
                         action='store_true')
 
-    parser.add_argument('-fc', '--face-color',
+    parser.add_argument('-ac', '--face-color',
                         help='',
                         type=int,
-                        default=[0, 255, 0],
+                        default=[25, 255, 100],
                         nargs=3)
 
     parser.add_argument('-lc', '--landmark-color',
                         help='',
                         type=int,
-                        default=[0, 255, 255],
+                        default=[255, 50, 100],
                         nargs=3)
 
     args = vars(parser.parse_args())
@@ -78,6 +78,8 @@ def main():
 
 def detect(input_image, output_path, use_json, annotate_faces,
            annotate_landmarks, face_color, landmark_color, save_chip):
+    img = io.imread(input_image)
+
     d = Detector(input_image)
     d.detect()
 
@@ -88,7 +90,6 @@ def detect(input_image, output_path, use_json, annotate_faces,
         print 'Number of cat faces detected: {}'.format(d.result.face_count)
 
     if annotate_faces or annotate_landmarks:
-        img = io.imread(input_image)
         w = img.shape[1]
 
     for i, face in enumerate(d.result.faces):
@@ -109,7 +110,8 @@ def detect(input_image, output_path, use_json, annotate_faces,
             cropped.save(chip_path)
 
         if annotate_landmarks:
-            draw_landmark_annotation(img, shape, landmark_color, int(w * 0.001))
+            draw_landmark_annotation(img, shape, landmark_color,
+                                     int(w * 0.0025))
 
         if annotate_faces:
             draw_face_annotation(img, face, face_color, int(w * 0.005))
@@ -170,6 +172,12 @@ def get_face_json(face, shape):
 
 
 def draw_face_annotation(img, face, color, width):
+    # cv2.rectangle(img,
+    #               (face.left(), face.top()),
+    #               (face.right(), face.bottom()),
+    #               (0, 0, 0),
+    #               int(width * 2))
+
     cv2.rectangle(img,
                   (face.left(), face.top()),
                   (face.right(), face.bottom()),
@@ -203,6 +211,10 @@ def draw_landmark_annotation(img, shape, color, width):
     # draw_line(img, shape.part(5), shape.part(3), color, width)
     # draw_line(img, shape.part(5), shape.part(7), color, width)
     # draw_line(img, shape.part(3), shape.part(6), color, width)
+
+    # for i in lines:
+    #     draw_line(img, shape.part(i[0]), shape.part(i[1]), (0, 0, 0),
+    #               int(width * 2))
 
     for i in lines:
         draw_line(img, shape.part(i[0]), shape.part(i[1]), color, width)

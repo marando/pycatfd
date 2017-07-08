@@ -11,7 +11,7 @@ class Trainer:
     def __init__(self, folder=TrainingDataUtil.training_data_dir, cpu_cores=8):
         self.folder = folder
         self.cpu_cores = cpu_cores
-        self.xml = '{0}/training.xml'.format(folder)
+        self.xml = '{}/{}'.format(folder, TrainingDataUtil.training_data_xml)
 
     def train_object_detector(self):
         self.__print_training_message('object detector')
