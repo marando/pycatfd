@@ -14,8 +14,9 @@ class TrainingDataUtil:
 
     @staticmethod
     def archive_training_data():
-        if not TrainingDataUtil.__confirm_if_archive():
-            return
+        if os.path.isfile(TrainingDataUtil.training_data_archive):
+            if not TrainingDataUtil.__confirm_if_archive():
+                return
 
         try:
             tar = tarfile.open(TrainingDataUtil.training_data_archive, 'w:gz')

@@ -8,7 +8,10 @@ from lib.TrainingDataUtil import TrainingDataUtil
 def main():
     formatter = lambda prog: argparse.HelpFormatter(prog,
                                                     max_help_position=33)
-    desc = 'test'
+    desc = '''
+    Handles the training of the FHOG detector and facial landmark shape 
+    predictor
+    '''
     parser = argparse.ArgumentParser(description=desc,
                                      formatter_class=formatter)
 
@@ -20,12 +23,12 @@ def main():
                         action='store_true')
 
     parser.add_argument('-d', '--train-detector',
-                        help='begin object detector training',
+                        help='begin FHOG object detector training',
                         action='store_true')
 
     parser.add_argument('-p', '--train-predictor',
                         help='''
-                        begin facial landmark (shape predictor) training 
+                        begin facial landmark shape predictor training 
                         ''',
                         action='store_true')
 
@@ -76,10 +79,10 @@ def main():
             'left_eye',
             'right_eye',
             'nose',
-            'left_on_left_ear',
-            'right_on_left_ear',
-            'left_on_right_ear',
-            'right_on_right_ear',
+            'left_of_left_ear',
+            'right_of_left_ear',
+            'left_of_right_ear',
+            'right_of_right_ear',
             'chin'
         )
         cmd = 'imglab {}/{} --parts "{}"'.format(

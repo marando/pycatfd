@@ -1,19 +1,19 @@
 import argparse
+import cv2
 import glob
 import os
-
-import cv2
-
+from PIL import Image
 from lib.CatFaceLandmark import *
 from lib.Detector import Detector
-from PIL import Image
 from skimage import io
 
 
 def main():
     formatter = lambda prog: argparse.HelpFormatter(prog,
                                                     max_help_position=36)
-    desc = 'test'
+    desc = '''
+    Detects cat faces and facial landmarks
+    '''
     parser = argparse.ArgumentParser(description=desc,
                                      formatter_class=formatter)
 
@@ -31,29 +31,31 @@ def main():
                         metavar='<path>')
 
     parser.add_argument('-j', '--json',
-                        help='',
+                        help='output face and landmark information to JSON',
                         action='store_true')
 
     parser.add_argument('-c', '--save-chip',
-                        help='',
+                        help='save a cropped version of each detected cat face',
                         action='store_true')
 
     parser.add_argument('-a', '--annotate-faces',
-                        help='',
+                        help='draw a square around each detected cat face',
                         action='store_true')
 
     parser.add_argument('-l', '--annotate-landmarks',
-                        help='',
+                        help='''
+                        draw lines between detected facial landmarks
+                        ''',
                         action='store_true')
 
     parser.add_argument('-ac', '--face-color',
-                        help='',
+                        help='face square color',
                         type=int,
                         default=[25, 255, 100],
                         nargs=3)
 
     parser.add_argument('-lc', '--landmark-color',
-                        help='',
+                        help='facial landmark line color',
                         type=int,
                         default=[255, 50, 100],
                         nargs=3)
@@ -64,15 +66,24 @@ def main():
         parser.error("must specify either -i or -f")
 
     if args['input_image']:
-        detect(args['input_image'], args['output_path'], args['json'],
-               args['annotate_faces'], args['annotate_landmarks'],
-               args['face_color'], args['landmark_color'], args['save_chip'])
+        detect(args['input_image'],
+               args['output_path'],
+               args['json'],
+               args['annotate_faces'],
+               args['annotate_landmarks'],
+               args['face_color'],
+               args['landmark_color'],
+               args['save_chip'])
 
     if args['input_folder']:
         for f in glob.glob(os.path.join(args['input_folder'], '*.jp*g')):
-            detect(f, args['output_path'], args['json'],
-                   args['annotate_faces'], args['annotate_landmarks'],
-                   args['face_color'], args['landmark_color'],
+            detect(f,
+                   args['output_path'],
+                   args['json'],
+                   args['annotate_faces'],
+                   args['annotate_landmarks'],
+                   args['face_color'],
+                   args['landmark_color'],
                    args['save_chip'])
 
 
@@ -93,7 +104,6 @@ def detect(input_image, output_path, use_json, annotate_faces,
         w = img.shape[1]
 
     for i, face in enumerate(d.result.faces):
-        # shape = d.result.shapes[i]
         shape = d.predictor(img, face)
 
         if save_chip:
@@ -150,10 +160,21 @@ def print_face_info(i, face, shape):
         face.right(),
         face.bottom()
     )
-    print '   Chin: ({}, {})'.format(shape.part(0).x, shape.part(0).y)
+
+    for landmark in CatFaceLandmark.all():
+        print '   {}: ({}, {})'.format(
+            landmark['name'],
+            shape.part(landmark['value']).x,
+            shape.part(landmark['value']).y
+        )
 
 
 def get_face_json(face, shape):
+    landmarks = {}
+    for landmark in CatFaceLandmark.all():
+        landmarks[landmark['name']] = [shape.part(landmark['value']).x,
+                                       shape.part(landmark['value']).y]
+
     return {
         "face": {
             'left': face.left(),
@@ -162,22 +183,12 @@ def get_face_json(face, shape):
             'bottom': face.bottom(),
             'height': face.bottom() - face.top(),
             'width': face.right() - face.left(),
-            'landmarks': {
-                'chin': [shape.part(0).x, shape.part(0).y],
-                'left_eye': [shape.part(1).x, shape.part(1).y],
-                # TODO
-            }
+            'landmarks': landmarks
         }
     }
 
 
 def draw_face_annotation(img, face, color, width):
-    # cv2.rectangle(img,
-    #               (face.left(), face.top()),
-    #               (face.right(), face.bottom()),
-    #               (0, 0, 0),
-    #               int(width * 2))
-
     cv2.rectangle(img,
                   (face.left(), face.top()),
                   (face.right(), face.bottom()),
@@ -200,35 +211,14 @@ def draw_landmark_annotation(img, shape, color, width):
         [CatFaceLandmark.RIGHT_EYE, CatFaceLandmark.LEFT_EYE],
     ]
 
-    # draw_line(img, shape.part(0), shape.part(4), color, width)
-    # draw_line(img, shape.part(4), shape.part(1), color, width)
-    # draw_line(img, shape.part(4), shape.part(5), color, width)
-    # draw_line(img, shape.part(1), shape.part(5), color, width)
-    # draw_line(img, shape.part(2), shape.part(6), color, width)
-    # draw_line(img, shape.part(3), shape.part(7), color, width)
-    # draw_line(img, shape.part(1), shape.part(2), color, width)
-    # draw_line(img, shape.part(1), shape.part(6), color, width)
-    # draw_line(img, shape.part(5), shape.part(3), color, width)
-    # draw_line(img, shape.part(5), shape.part(7), color, width)
-    # draw_line(img, shape.part(3), shape.part(6), color, width)
-
-    # for i in lines:
-    #     draw_line(img, shape.part(i[0]), shape.part(i[1]), (0, 0, 0),
-    #               int(width * 2))
-
     for i in lines:
         draw_line(img, shape.part(i[0]), shape.part(i[1]), color, width)
 
 
 def draw_line(img, shape1, shape2, color, width):
-    cv2.line(
-        img,
-        (shape1.x, shape1.y),
-        (shape2.x, shape2.y),
-        color,
-        width,
-        cv2.CV_AA
-    )
+    pt1 = (shape1.x, shape1.y)
+    pt2 = (shape2.x, shape2.y)
+    cv2.line(img, pt1, pt2, color, width, cv2.CV_AA)
 
 
 main()

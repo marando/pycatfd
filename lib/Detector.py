@@ -16,7 +16,3 @@ class Detector:
     def detect(self):
         self.result.faces = self.detector(self.image_data, 1)
         self.result.face_count = len(self.result.faces)
-
-        for i, face in enumerate(self.result.faces):
-            shape = self.predictor(self.image_data, face)
-            self.result.shapes.append(shape)
