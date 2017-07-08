@@ -1,4 +1,4 @@
-# pycatfd
+# pycatfd 🐈
 _Cat facial detection and landmark recognition in Python_
 
 ## Requirements
