@@ -1,7 +1,7 @@
 # pycatfd 🐈
 _Cat facial detection and landmark recognition in Python_
 
-![](https://user-images.githubusercontent.com/4701701/27982869-8a7db7f4-637c-11e7-8cff-19a911fa2621.jpg)
+![](https://user-images.githubusercontent.com/4701701/27982869-8a7db7f4-637c-11e7-8cff-19a911fa2621.jpg | width=100)
 
 ## Requirements
 * [dlib](https://github.com/davisking/dlib)
