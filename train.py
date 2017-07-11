@@ -56,6 +56,10 @@ def main():
                         ''',
                         action='store_true')
 
+    parser.add_argument('-w', '--window-size',
+                        help='detector window size',
+                        metavar='<int>')
+
     args = vars(parser.parse_args())
 
     if args['source_url']:
@@ -65,11 +69,11 @@ def main():
         TrainingDataUtil.archive_training_data()
 
     if args['train_all']:
-        train_detector(args['cpu_cores'])
+        train_detector(args['cpu_cores'], args['window_size'])
         train_predictor(args['cpu_cores'])
 
     if args['train_detector']:
-        train_detector(args['cpu_cores'])
+        train_detector(args['cpu_cores'], args['window_size'])
 
     if args['train_predictor']:
         train_predictor(args['cpu_cores'])
@@ -93,9 +97,9 @@ def main():
         os.system(cmd)
 
 
-def train_detector(cpu_cores):
+def train_detector(cpu_cores, window_size):
     TrainingDataUtil.extract_training_data()
-    t = Trainer(TrainingDataUtil.training_data_dir, cpu_cores)
+    t = Trainer(TrainingDataUtil.training_data_dir, cpu_cores, window_size)
     t.train_object_detector()
 
 
