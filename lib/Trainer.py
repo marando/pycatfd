@@ -37,5 +37,11 @@ class Trainer:
         opt.be_verbose = True
         dlib.train_shape_predictor(self.xml, PREDICTOR_DAT, opt)
 
+    def view_object_detector(self):
+        detector = dlib.simple_object_detector(DETECTOR_SVM)
+        win_det = dlib.image_window()
+        win_det.set_image(detector)
+        dlib.hit_enter_to_continue()
+
     def __print_training_message(self, trainer):
         print 'Training {0} with {1} CPU cores.'.format(trainer, self.cpu_cores)

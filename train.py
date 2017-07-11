@@ -9,7 +9,7 @@ def main():
     formatter = lambda prog: argparse.HelpFormatter(prog,
                                                     max_help_position=33)
     desc = '''
-    Handles the training of the FHOG detector and facial landmark shape 
+    Handles the training of the FHOG detector and facial landmark shape
     predictor
     '''
     parser = argparse.ArgumentParser(description=desc,
@@ -17,7 +17,7 @@ def main():
 
     parser.add_argument('-t', '--train-all',
                         help='''
-                        begin full training, which includes both FHOG detector 
+                        begin full training, which includes both FHOG detector
                         and shape predictor training
                         ''',
                         action='store_true')
@@ -28,16 +28,22 @@ def main():
 
     parser.add_argument('-p', '--train-predictor',
                         help='''
-                        begin facial landmark shape predictor training 
+                        begin facial landmark shape predictor training
                         ''',
                         action='store_true')
 
     parser.add_argument('-c', '--cpu-cores',
                         help='''
-                        number of CPU cores to train with 
+                        number of CPU cores to train with
                         ''',
                         default=multiprocessing.cpu_count(),
                         metavar='<int>')
+
+    parser.add_argument('-v', '--view-detector',
+                        help='''
+                        View previously trained object detector SVM
+                        ''',
+                        action='store_true')
 
     parser.add_argument('-u', '--source-url',
                         help='download training data from url',
@@ -45,7 +51,7 @@ def main():
 
     parser.add_argument('-a', '--archive',
                         help='''
-                        compress current training data directory to tar gzip 
+                        compress current training data directory to tar gzip
                         archive
                         ''',
                         action='store_true')
@@ -58,7 +64,9 @@ def main():
 
     parser.add_argument('-w', '--window-size',
                         help='detector window size',
-                        metavar='<int>')
+                        metavar='<int>',
+                        default=90,
+                        type=int)
 
     args = vars(parser.parse_args())
 
@@ -96,6 +104,15 @@ def main():
         )
         os.system(cmd)
 
+    if args['view_detector']:
+        view_object_detector_svm()
+
+
+def train_predictor(cpu_cores):
+    TrainingDataUtil.extract_training_data()
+    t = Trainer(TrainingDataUtil.training_data_dir, cpu_cores)
+    t.train_shape_predictor()
+
 
 def train_detector(cpu_cores, window_size):
     TrainingDataUtil.extract_training_data()
@@ -103,10 +120,9 @@ def train_detector(cpu_cores, window_size):
     t.train_object_detector()
 
 
-def train_predictor(cpu_cores):
-    TrainingDataUtil.extract_training_data()
-    t = Trainer(TrainingDataUtil.training_data_dir, cpu_cores)
-    t.train_shape_predictor()
+def view_object_detector_svm():
+    t = Trainer(TrainingDataUtil.training_data_dir)
+    t.view_object_detector()
 
 
 main()
