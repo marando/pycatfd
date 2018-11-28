@@ -36,7 +36,7 @@ If you would like to do this manually, you can run the following:
     cd pycatfd
     ```
 
-2. Enter the repository directory and build the image:
+2. Build the image:
     ```shell
     docker build -t pycatfd .
     ```
