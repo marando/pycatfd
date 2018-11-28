@@ -24,11 +24,11 @@ the `train.py` tool.
 
 ## Docker Container
 A `Dockerfile` is provided to avoid having to install all dependencies manually, 
-which can be quite tedious. To use it, first build the image using the 
-`build.sh` script, and then run it using the `run.sh` script from within the 
-repository directory. 
+which can be quite tedious. First make sure you have Docker installed for your 
+system, and then to use the image, first build it using the `build.sh` script, 
+and then run it using the `run.sh` script from within the repository directory. 
 
-Here is the manual process, which can be avoided if you use the above scripts:
+If you would like to do this manually, you can run the following: 
 
 1. Enter the repository directory and build the image:
     ```shell
