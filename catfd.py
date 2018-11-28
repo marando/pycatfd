@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import cv2
 import glob
@@ -218,7 +220,7 @@ def draw_landmark_annotation(img, shape, color, width):
 def draw_line(img, shape1, shape2, color, width):
     pt1 = (shape1.x, shape1.y)
     pt2 = (shape2.x, shape2.y)
-    cv2.line(img, pt1, pt2, color, width, cv2.CV_AA)
+    cv2.line(img, pt1, pt2, color, width, cv2.LINE_AA)
 
 
 main()
