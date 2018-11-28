@@ -30,12 +30,17 @@ and then run it using the `run.sh` script from within the repository directory.
 
 If you would like to do this manually, you can run the following: 
 
-1. Enter the repository directory and build the image:
+1. Clone and enter the repository:
     ```shell
+    git clone git@github.com:marando/pycatfd.git
     cd pycatfd
+    ```
+
+2. Enter the repository directory and build the image:
+    ```shell
     docker build -t pycatfd .
     ```
-2. Then issue this command to run it:
-    ```
+3. Then issue this command to run it:
+    ```shell
     docker run -it --rm -v "$PWD":/app pycatfd /bin/bash
     ```
