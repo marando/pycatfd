@@ -1,5 +1,5 @@
 import dlib
-from DetectorResult import DetectorResult
+from lib.DetectorResult import DetectorResult
 from lib.Trainer import DETECTOR_SVM
 from lib.Trainer import PREDICTOR_DAT
 from skimage import io
