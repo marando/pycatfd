@@ -44,4 +44,4 @@ class Trainer:
         dlib.hit_enter_to_continue()
 
     def __print_training_message(self, trainer):
-        print 'Training {0} with {1} CPU cores.'.format(trainer, self.cpu_cores)
+        print('Training {0} with {1} CPU cores.'.format(trainer, self.cpu_cores))
