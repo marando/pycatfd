@@ -16,7 +16,7 @@ RUN cd ~ && \
     mkdir -p dlib && \
     git clone https://github.com/davisking/dlib.git dlib ;\
     cd dlib/ ;\
-    python setup.py install --yes USE_AVX_INSTRUCTIONS ;\
+    python setup.py install ;\
     cd ~ && rm -r dlib/
 
 RUN pip install pillow && \
