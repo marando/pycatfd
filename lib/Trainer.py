@@ -1,6 +1,6 @@
 import dlib
 import os
-from TrainingDataUtil import TrainingDataUtil
+from .TrainingDataUtil import TrainingDataUtil
 
 DATA_DIR = 'data'
 DETECTOR_SVM = os.path.join(DATA_DIR, 'detector.svm')
@@ -44,4 +44,4 @@ class Trainer:
         dlib.hit_enter_to_continue()
 
     def __print_training_message(self, trainer):
-        print('Training {0} with {1} CPU cores.'.format(trainer, self.cpu_cores))
+        print(('Training {0} with {1} CPU cores.'.format(trainer, self.cpu_cores)))

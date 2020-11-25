@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import cv2
@@ -99,8 +99,8 @@ def detect(input_image, output_path, use_json, annotate_faces,
     if use_json:
         json = []
     else:
-        print '\nImage: {}'.format(input_image)
-        print 'Number of cat faces detected: {}'.format(d.result.face_count)
+        print(('\nImage: {}'.format(input_image)))
+        print(('Number of cat faces detected: {}'.format(d.result.face_count)))
 
     if annotate_faces or annotate_landmarks:
         w = img.shape[1]
@@ -143,7 +143,7 @@ def detect(input_image, output_path, use_json, annotate_faces,
             cv2.imwrite(filename, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
     if use_json:
-        print json
+        print(json)
 
 
 def get_output_file(output_path, input_image, extra, ext):
@@ -155,20 +155,20 @@ def get_output_file(output_path, input_image, extra, ext):
 
 
 def print_face_info(i, face, shape):
-    print 'Face #{}: ({}, {}), ({}, {})'.format(
+    print(('Face #{}: ({}, {}), ({}, {})'.format(
         i,
         face.top(),
         face.left(),
         face.right(),
         face.bottom()
-    )
+    )))
 
     for landmark in CatFaceLandmark.all():
-        print '   {}: ({}, {})'.format(
+        print(('   {}: ({}, {})'.format(
             landmark['name'],
             shape.part(landmark['value']).x,
             shape.part(landmark['value']).y
-        )
+        )))
 
 
 def get_face_json(face, shape):
